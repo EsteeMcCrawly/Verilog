@@ -1,15 +1,14 @@
+// This module creates a ball that moves in the game. In its current state, the balls are 3x3
+// but the module is parameterized to be able to create a ball of any odd number of pixels 
 
-
-// 3x3 ball drawing and movement control 
-
-module ball #(parameter xloc_start=320,
-	      parameter yloc_start=240,
-	      parameter xdir_start=0,
-	      parameter ydir_start=0,
-	      parameter size=3,
-	      parameter start_player=0)
+module ball #(parameter xloc_start = 320,
+	          parameter yloc_start = 240,
+	          parameter xdir_start = 0,
+	          parameter ydir_start = 0,
+	          parameter size = 3,
+	          parameter start_player = 0)
 (
-    input	    clk, // 100 MHz system clock
+    input	    clk,      // 100 MHz system clock
     input	    pixpulse, // every 4 clocks for 25MHz pixel rate
     input	    rst,
     input [9:0]	hcount, // x-location where we are drawing
@@ -28,12 +27,12 @@ module ball #(parameter xloc_start=320,
     output reg  player, // the last player paddle to touch the ball
     output reg  broken0,//did the ball break a block for player 0?
     output reg  broken1 //did the ball break a block for player 1?
-    );
+);
 
-    reg [size+1:0]	occupied_lft;
-    reg [size+1:0]	occupied_rgt;
-    reg [size+1:0]	occupied_bot;
-    reg [size+1:0]	occupied_top;
+    reg [size + 1:0]	occupied_lft;
+    reg [size + 1:0]	occupied_rgt;
+    reg [size + 1:0]	occupied_bot;
+    reg [size + 1:0]	occupied_top;
     reg				xdir, ydir;
     reg				update_neighbors;
 
@@ -146,82 +145,109 @@ module ball #(parameter xloc_start=320,
 
                 case ({xdir,ydir})
                     2'b00: begin  // heading to the left and up
+                        // if the left side of the ball makes contact the x-direction changes
                         if (blk_lft_up | corner_lft_up) begin
                             xloc <= xloc + 1;
                             xdir <= ~xdir;
                         end 
                         else begin
+                        // if the ball makes no contact the ball keeps moving to the left
                             xloc <= xloc - 1;
                         end
                         if (sendUp) begin
+                        // if the ball makes contact with the top half of the paddle its direction stays the same
                             yloc <= yloc - 1;
                             ydir <= ydir;
                         end
-                        if ((blk_up_lft | corner_lft_up)|sendDown) begin
+                        // if the top of the ball makes contact or hits the
+                        // bottom half of the paddle the y-direction changes
+                        if ((blk_up_lft | corner_lft_up) | sendDown) begin
                             yloc <= yloc + 1;
                             ydir <= ~ydir;
                         end 
                         else begin
+                        // if the ball makes no contact the ball keeps moving up
                             yloc <= yloc - 1;
                         end
                     end
                     2'b01: begin  // heading to the left and down
+                        // if the left side of ball makes contact the x-direction changes
                         if (blk_lft_dn | corner_lft_dn) begin
                             xloc <= xloc + 1;
                             xdir <= ~xdir;
                         end 
                         else begin
+                        // if the ball makes no contact the ball keeps moving to the left
                             xloc <= xloc - 1;
                         end
                         if (sendDown) begin
+                        // if the ball makes contact with the bottom half
+                        // of the paddle its direction stays the same
                             yloc <= yloc + 1;
                             ydir <= ydir;
                         end
                         else if ((blk_dn_lft | corner_lft_dn)| sendUp) begin
+                        // if the bottom of the ball makes contact or hits
+                        // the top half of the paddle the y-direction changes
                             yloc <= yloc - 1;
                             ydir <= ~ydir;
                         end
                         else begin
+                        // if the ball makes no contact the ball keeps moving down
                             yloc <= yloc + 1;
                         end
                     end
                     2'b10: begin  // heading to the right and up
+                        // if the right side of the ball makes contact the x-direction changes
                         if (blk_rgt_up | corner_rgt_up) begin
                             xloc <= xloc - 1;
                             xdir <= ~xdir;
                         end
                         else begin
+                        // if the ball makes no contact the ball keeps moving to the right
                             xloc <= xloc + 1;
                         end
                         if (sendUp) begin
+                        // if the ball makes contact with the top half
+                        // of the paddle its direction stays the same
                             yloc <= yloc - 1;
                             ydir <= ydir;
                         end
                         else if ((blk_up_rgt | corner_rgt_up) | sendDown) begin
+                        // if the top half of the ball makes contact or hits
+                        // the bottom half of the paddle the y-direction changes
                             yloc <= yloc + 1;
                             ydir <= ~ydir;
                         end
                         else begin
+                        // if the ball makes no contact the ball keeps moving up
                             yloc <= yloc - 1;
                         end
                     end
                     2'b11: begin  // heading to the right and down
+                        // if the right side of the ball makes contact the x-direction changes
                         if (blk_rgt_dn | corner_rgt_dn) begin
                             xloc <= xloc - 1;
                             xdir <= ~xdir;
                         end
                         else begin
+                        // if the ball makes no contact the ball keeps moving to the right
                             xloc <= xloc + 1;
                         end
                         if (sendDown) begin
+                        // if the ball makes contact with the bpttom half
+                        // of the paddle its direction stays the same
                             yloc <= yloc + 1;
                             ydir <= ydir;
                         end
                         else if ((blk_dn_rgt | corner_rgt_dn) | sendUp) begin
+                        // if the bottom half of the ball makes contact or hits
+                        // the top half of the paddle the y-direction changes
                             yloc <= yloc - 1;
                             ydir <= ~ydir;
                         end
                         else begin
+                        // if the ball makes no contact the ball keeps moving down
                             yloc <= yloc + 1;
                         end
                     end
